@@ -28,7 +28,20 @@ class GoGame:
                     player = self.board[i][j]
                     group = []
                     flood_fill(i, j, group)
-                    groups.append({'player': player, 'stones': group})
+
+                    # Check if the group has any liberties
+                    captured = True
+                    for stone in group:
+                        row, col = stone
+                        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                            new_row, new_col = row + dx, col + dy
+                            if (0 <= new_row < self.board_size and
+                                    0 <= new_col < self.board_size and
+                                    self.board[new_row][new_col] == ' '):
+                                captured = False
+                                break
+
+                    groups.append({'player': player, 'stones': group, 'captured': captured})
 
         return groups
 
@@ -40,7 +53,7 @@ class GoGame:
         print()
 
         for i in range(self.board_size):
-            print(f"{i + 1:2}", end=" ")
+            print(f"{i:2}", end=" ")
             for j in range(self.board_size):
                 print(f"{self.board[i][j]}", end=" ")
             print()
@@ -56,6 +69,14 @@ class GoGame:
 
         self.board[row][col] = self.current_player
         self.moves.append((row, col, self.current_player))
+        groups = self.find_groups()
+
+        for group in groups:
+            if group["captured"]:
+                for stone in group["stones"]:
+                    row, col = stone
+                    self.board[row][col] = ' '
+
 
         # TODO: Add logic to handle capturing stones, check for surrounded groups, etc.
 
