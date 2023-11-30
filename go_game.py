@@ -46,7 +46,6 @@ class GoGame:
         return groups
 
     def print_board(self):
-        # Print the Go board
         print("   ", end="")
         for i in range(self.board_size):
             print(chr(i + 65), end=" ")
@@ -59,6 +58,12 @@ class GoGame:
             print()
 
     def make_move(self, row, col):
+        '''
+        Contains all the logic for making a move in the game
+
+        This includes checking the validity of the move, checking
+        for any captured stones, and updating the current score
+        '''
         if row < 0 or row >= self.board_size or col < 0 or col >= self.board_size:
             print("Invalid move. Out of bounds.")
             return False
@@ -77,8 +82,5 @@ class GoGame:
                     row, col = stone
                     self.board[row][col] = ' '
 
-
-        # TODO: Add logic to handle capturing stones, check for surrounded groups, etc.
-
-        self.current_player = 'W' if self.current_player == 'B' else 'B'  # Change player turn
+        self.current_player = 'W' if self.current_player == 'B' else 'B'
         return True
