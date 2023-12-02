@@ -5,6 +5,7 @@ class GoGame:
         self.current_player = 'B'  # 'B' for Black, 'W' for White
         self.opposing_player = 'W'
         self.moves = []
+        self.potential_ko = None
 
     def find_groups(self):
         '''
@@ -62,6 +63,24 @@ class GoGame:
                 print(f"{self.board[i][j]}", end=" ")
             print()
 
+    def is_adjacent(self, row1, col1, row2, col2):
+        """
+        Checks if two moves are adjacent to each other on the board.
+        """
+        return abs(row1 - row2) + abs(col1 - col2) == 1
+    
+    def save_state(self):
+        """
+        Saves the current state of the board.
+        """
+        return [row[:] for row in self.board]
+
+    def restore_state(self, saved_state):
+        """
+        Restores the board to a previously saved state.
+        """
+        self.board = [row[:] for row in saved_state]
+
     def make_move(self, row, col):
         '''
         Contains all the logic for making a move in the game
@@ -69,6 +88,9 @@ class GoGame:
         This includes checking the validity of the move, checking
         for any captured stones, and updating the current score
         '''
+
+        saved_state = self.save_state()
+
         if row < 0 or row >= self.board_size or col < 0 or col >= self.board_size:
             print("Invalid move. Out of bounds.")
             return False
@@ -104,10 +126,19 @@ class GoGame:
         if self_captured:
             self.board[row][col] = ' '  # Undo the move
             print("Invalid move. Self-capture is not allowed, try again.")
-            for stone in captured_enemies:
-                stone_row, stone_col = stone
-                self.board[stone_row][stone_col] = self.opposing_player
+            self.restore_state(saved_state)
             return False
+        
+        if self.potential_ko and len(captured_enemies) == 1:
+            if self.is_adjacent(row, col, self.potential_ko[0], self.potential_ko[1]):
+                print("Invalid move. Violates ko, try again.")
+                self.restore_state(saved_state)
+                return False
+            
+        if len(captured_enemies) == 1:
+            self.potential_ko = [row, col]
+        else:
+            self.potential_ko = None
 
         for group in groups:
             if group["captured"]:
