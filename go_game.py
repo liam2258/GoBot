@@ -3,9 +3,14 @@ class GoGame:
         self.board_size = board_size
         self.board = [[' ' for _ in range(self.board_size)] for _ in range(self.board_size)]
         self.current_player = 'B'  # 'B' for Black, 'W' for White
+        self.opposing_player = 'W'
         self.moves = []
 
     def find_groups(self):
+        '''
+        Used to identify all of the groups of stones, which
+        player they belong to, and if they're currently captured.
+        '''
         groups = []
         visited = [[False for _ in range(self.board_size)] for _ in range(self.board_size)]
 
@@ -76,6 +81,34 @@ class GoGame:
         self.moves.append((row, col, self.current_player))
         groups = self.find_groups()
 
+        captured_enemies = []
+
+        # Check for captures of enemy pieces
+        for group in groups:
+            if group["captured"] and group["player"] is not self.current_player:
+                for stone in group["stones"]:
+                    row, col = stone
+                    captured_enemies.append(stone)
+                    self.board[row][col] = ' '
+                
+        groups = self.find_groups()
+
+         # Check for self-capture
+        self_captured = False
+        for group in groups:
+            if group["captured"] and group["player"] == self.current_player:
+                self_captured = True
+                break
+
+        # Undo captrues and moves if self-capture occurs
+        if self_captured:
+            self.board[row][col] = ' '  # Undo the move
+            print("Invalid move. Self-capture is not allowed, try again.")
+            for stone in captured_enemies:
+                stone_row, stone_col = stone
+                self.board[stone_row][stone_col] = self.opposing_player
+            return False
+
         for group in groups:
             if group["captured"]:
                 for stone in group["stones"]:
@@ -83,4 +116,5 @@ class GoGame:
                     self.board[row][col] = ' '
 
         self.current_player = 'W' if self.current_player == 'B' else 'B'
+        self.opposing_player = 'B' if self.opposing_player == 'W' else 'W'
         return True
