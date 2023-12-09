@@ -58,7 +58,7 @@ class MonteCarloTree:
         if margin > 0:
             return 1 + 0.1 * margin  # Assign higher score for larger margin of victory
         elif margin < 0:
-            return 0.5 - 0.05 * abs(margin)  # Decrease score for smaller margin of defeat
+            return 0.5 - 0.05 * abs(margin)  # Decrease score for higher margin of defeat
         else:
             return 0.5  # It's a tie
 
