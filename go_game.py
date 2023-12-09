@@ -2,7 +2,7 @@ class GoGame:
     def __init__(self, board_size=6):
         self.board_size = board_size
         self.board = [[' ' for _ in range(self.board_size)] for _ in range(self.board_size)]
-        self.current_player = 'B'  # 'B' for Black, 'W' for White
+        self.current_player = 'B'
         self.opposing_player = 'W'
         self.moves = []
         self.potential_ko = None
@@ -167,7 +167,8 @@ class GoGame:
             'moves': self.moves[:],
             'potential_ko': self.potential_ko,
             'b_captures': self.b_captures,
-            'w_captures': self.w_captures
+            'w_captures': self.w_captures,
+            'pass_counter': self.pass_counter
         }
         return state
 
@@ -183,8 +184,9 @@ class GoGame:
         self.potential_ko = saved_state['potential_ko']
         self.b_captures = saved_state['b_captures']
         self.w_captures = saved_state['w_captures']
+        self.pass_counter = saved_state['pass_counter']
 
-    def make_move(self, row, col=0, live=True):
+    def make_move(self, row, col=0, live=False):
         '''
         Contains all the logic for making a move in the game
 
@@ -203,8 +205,9 @@ class GoGame:
             self.opposing_player = 'B' if self.opposing_player == 'W' else 'W'
             if self.pass_counter >= 4:
                 self.is_over = True
-                print('Game Over:')
-                print(self.calculate_score())
+                if live:
+                    print('Game Over:')
+                    print(self.calculate_score())
             return True
 
 
@@ -247,7 +250,7 @@ class GoGame:
                 self_captured = True
                 break
 
-        # Undo captrues and moves if self-capture occurs
+        # Undo captures and moves if self-capture occurs
         if self_captured:
             self.board[row][col] = ' '  # Undo the move
             if live:
@@ -272,15 +275,14 @@ class GoGame:
         self.pass_counter = 0
         return True
 
-    # TODO Change this to just getting empty squares
     def get_valid_moves(self):
         """
         Get a list of valid moves for the current state of the board.
         """
         valid_moves = []
         saved_state = self.save_state()
-        # pass is always a valid move
-        valid_moves.append(("pass", 0))
+        if self.pass_counter < 4:
+            valid_moves.append(("pass", 0))
 
         for row in range(self.board_size):
             for col in range(self.board_size):
@@ -292,3 +294,24 @@ class GoGame:
                     self.restore_state(saved_state)
 
         return valid_moves
+    
+    def clone(self):
+        """
+        Clones the current instance of the GoGame class.
+        """
+        cloned_game = GoGame(self.board_size)  # Create a new instance with the same board size
+
+        # Copy the state of the current instance to the new instance
+        cloned_game.board = [row[:] for row in self.board]
+        cloned_game.current_player = self.current_player
+        cloned_game.opposing_player = self.opposing_player
+        cloned_game.moves = self.moves[:]
+        cloned_game.potential_ko = self.potential_ko
+        cloned_game.pass_counter = self.pass_counter
+        cloned_game.b_captures = self.b_captures
+        cloned_game.w_captures = self.w_captures
+        cloned_game.is_over = self.is_over
+
+        return cloned_game
+
+
