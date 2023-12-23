@@ -49,23 +49,3 @@ play_game()
 
 if __name__ == "__main__":
     play_game()
-    # game = GoGame(board_size=6)  # Initialize game
-    # tree = MonteCarloTree(game)
-    # best_move = tree.best_move(iterations=len(game.get_valid_moves()))  # Run MCTS algorithm
-    # print("Best Move:", best_move)
-
-    # Testing Ko
-    # game.make_move(0, 2)
-    # game.make_move(1, 4)
-    # game.make_move('pass', 0)
-    # game.make_move('pass', 0)
-    # game.make_move('pass', 0)
-    # game.make_move('pass', 0)
-    # game.make_move(1, 1)
-    # game.make_move(1, 2)
-    # game.make_move(2, 2)
-    # game.make_move(0, 3)
-    # game.make_move(5, 5)
-    # game.make_move(2, 3)
-    # game.make_move(1, 3)
-    # game.make_move(1, 2)

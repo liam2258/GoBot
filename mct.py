@@ -71,7 +71,10 @@ class MonteCarloTree:
 
     def get_best_child(self, node):
         children = node.children
-        best_child = max(children, key=lambda c: c.wins / c.visits + math.sqrt(2 * math.log(node.visits) / c.visits))
+        best_child = max(children,
+                        key=lambda c: c.wins / c.visits + 
+                        math.sqrt(2 * math.log(node.visits) 
+                        / c.visits))
         return best_child
 
 
