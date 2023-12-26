@@ -114,7 +114,7 @@ def test_calculate_score_tie():
 def test_make_move_valid():
     game = GoGame(6)
     assert game.make_move(0, 0)  # Valid move
-    assert game.board[0][0] == 'B'  # Assuming 'B' is the current player
+    assert game.board[0][0] == 'B'
 
 def test_make_move_out_of_bounds():
     game = GoGame(6)
@@ -125,7 +125,7 @@ def test_make_move_pass():
     game = GoGame(6)
     assert game.make_move("pass")  # Valid pass
     assert game.pass_counter == 1
-    assert game.current_player == 'W'  # Assuming 'B' was the current player
+    assert game.current_player == 'W'
 
 def test_make_move_game_over():
     game = GoGame(6)
