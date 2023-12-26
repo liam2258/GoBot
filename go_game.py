@@ -12,10 +12,15 @@ class GoGame:
         self.is_over = False
 
     def find_groups(self):
-        '''
-        Used to identify all of the groups of stones, which
-        player they belong to, and if they're currently captured.
-        '''
+        """
+        Identifies and returns all groups of stones on the board. 
+        A group is defined as a set of stones of the same color that are connected vertically. 
+        The method uses a flood fill algorithm to find the groups.
+
+        Returns:
+        list: A list of dictionaries where each dictionary represents a group of stones. 
+        Each dictionary contains keys 'player', 'stones', and a binary 'captured' flag.
+        """
         groups = []
         visited = [[False for _ in range(self.board_size)] for _ in range(self.board_size)]
 
@@ -56,9 +61,16 @@ class GoGame:
         return groups
     
     def find_territory(self):
-        '''
-        Used to identify and return all captured groups of empty spaces on the board.
-        '''
+        """
+        Identifies and returns all captured groups of empty spaces on the board. 
+        A group of empty spaces is considered captured if it is completely surrounded by a player's stones.
+
+        Returns:
+        list: A list of dictionaries where each dictionary represents a captured group of empty spaces. 
+        Each dictionary contains keys 'stones' and 'capturing_player', 
+        and values representing the coordinates of the stones in the group, 
+        and the player who has surrounded the group.
+        """
         captured_empty_groups = []
         visited_empty = [[False for _ in range(self.board_size)] for _ in range(self.board_size)]
 
@@ -116,6 +128,13 @@ class GoGame:
         return captured_empty_groups
 
     def count_territory(self):
+        """
+        Counts the territory for each player. Territory is defined as any empty points 
+        that are completely surrounded by a player's stones, not including diagonal spaces. 
+
+        Returns:
+        dict: A dictionary with keys 'B' and 'W', and values representing the territory count for each player.
+        """
         territory_count = {'B': 0, 'W': 0}
         captured_empty_groups = self.find_territory()
 
@@ -127,6 +146,13 @@ class GoGame:
         return territory_count
     
     def calculate_score(self):
+        """
+        Counts the territory for each player. Territory is defined as any empty points 
+        that are completely surrounded by a player's stones. 
+
+        Returns:
+        dict: A dictionary with keys 'B' and 'W', and values representing the territory count for each player.
+        """
         score = self.count_territory()
         score['B'] += self.b_captures
         score['W'] += self.w_captures
@@ -140,18 +166,32 @@ class GoGame:
     def print_board(self):
         print("   ", end="")
         for i in range(self.board_size):
-            print(i, end=" ")
+            print(f"{i:2}", end=" ")
         print()
 
         for i in range(self.board_size):
             print(f"{i:2}", end=" ")
             for j in range(self.board_size):
-                print(f"{self.board[i][j]}", end=" ")
+                piece = self.board[i][j]
+                if piece == 'B':
+                    print("\u25CB ", end="")  # Unicode for black circle
+                elif piece == 'W':
+                    print("\u25CF ", end="")  # Unicode for white circle
+                else:
+                    print("\u00B7 ", end="")  # Unicode for middle dot
             print()
 
     def is_adjacent(self, row1, col1, row2, col2):
         """
         Checks if two moves are adjacent to each other on the board.
+        Two moves are considered adjacent if they are next to each other horizontally or vertically.
+
+        Parameters:
+        row1, col1 (int): The row and column of the first move.
+        row2, col2 (int): The row and column of the second move.
+
+        Returns:
+        bool: True if the moves are adjacent, False otherwise.
         """
         return abs(row1 - row2) + abs(col1 - col2) == 1
     
@@ -187,12 +227,21 @@ class GoGame:
         self.pass_counter = saved_state['pass_counter']
 
     def make_move(self, row, col=0, live=False):
-        '''
-        Contains all the logic for making a move in the game
+        """
+        Makes a move in the game. This includes checking the validity of the move, 
+        checking for any captured stones, and updating the current score. 
+        If the game is over, no more moves can be played. 
+        If a player passes, the potential Ko is reset, the pass counter is incremented, 
+        and the players are switched. If there have been 4 passes in a row, the game is over.
 
-        This includes checking the validity of the move, checking
-        for any captured stones, and updating the current score
-        '''
+        Parameters:
+        row (int or "pass"): The row to place the stone, or "pass" to pass the turn.
+        col (int, optional): The column to place the stone. Defaults to 0.
+        live (bool, optional): Whether to print live game updates. Defaults to False.
+
+        Returns:
+        bool: True if the move was made successfully, False otherwise.
+        """
         if self.is_over:
             if live:
                 print("Game is over, no more moves can be played")
@@ -278,6 +327,13 @@ class GoGame:
     def get_valid_moves(self):
         """
         Get a list of valid moves for the current state of the board.
+        A move is considered valid if it is a pass or if placing a stone on the board 
+        at the move's coordinates does not violate the rules of the game.
+
+        Returns:
+        list: A list of tuples where each tuple represents a valid move. 
+        Each tuple contains two elements: the row and the column of the move. 
+        A pass is represented as ("pass", 0).
         """
         valid_moves = []
         saved_state = self.save_state()
@@ -298,10 +354,12 @@ class GoGame:
     def clone(self):
         """
         Clones the current instance of the GoGame class.
-        """
-        cloned_game = GoGame(self.board_size)  # Create a new instance with the same board size
 
-        # Copy the state of the current instance to the new instance
+        Returns:
+        GoGame: A new instance of the GoGame class with the same state as the current instance.
+        """
+        cloned_game = GoGame(self.board_size)
+
         cloned_game.board = [row[:] for row in self.board]
         cloned_game.current_player = self.current_player
         cloned_game.opposing_player = self.opposing_player

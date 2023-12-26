@@ -7,6 +7,15 @@ class MonteCarloTree:
         self.root = Node(game=self.game)
 
     def best_move(self, iterations):
+        """
+        Determines the best move to make from the root node based on the results of multiple simulations.
+
+        Parameters:
+        iterations (int): The number of simulations to run.
+
+        Returns:
+        action: The action associated with the best child of the root node after all simulations are run.
+        """
         for _ in range(iterations):
             node = self.select_node(self.root)
             simulation_result = self.simulate(node)
@@ -15,6 +24,16 @@ class MonteCarloTree:
         return self.get_best_child(self.root).action
 
     def select_node(self, node):
+        """
+        Selects a node for simulation. If the node is not fully expanded, it expands the node.
+        Otherwise, it selects the best child according to the UCT formula.
+
+        Parameters:
+        node (Node): The node from which to start the selection.
+
+        Returns:
+        Node: The selected node for the next simulation.
+        """
         while not node.is_terminal():
             if not node.is_fully_expanded():
                 return self.expand(node)
@@ -23,6 +42,16 @@ class MonteCarloTree:
         return node
 
     def expand(self, node):
+        """
+        Expands the given node by creating a new child node for an untried action.
+        If there are no untried actions, the node itself is returned.
+
+        Parameters:
+        node (Node): The node to expand.
+
+        Returns:
+        Node: The new child node, or the original node if there are no untried actions.
+        """
         actions = node.untried_actions()
         
         # Check if there are available actions to choose from
@@ -39,6 +68,16 @@ class MonteCarloTree:
 
 
     def simulate(self, node):
+        """
+        Runs a simulation from the given node until a terminal state is reached.
+        At each step, a move is randomly selected from the valid moves.
+
+        Parameters:
+        node (Node): The node from which to start the simulation.
+
+        Returns:
+        float: The score value of the terminal game state.
+        """
         state = node.game.clone()
         while not state.is_over:
             valid_moves = state.get_valid_moves()
@@ -47,6 +86,16 @@ class MonteCarloTree:
         return self.get_simulation_result(state)
 
     def get_simulation_result(self, state):
+        """
+        Calculates the score value of the game state. 
+        Assigns higher scores for larger margins of victory and lower scores for larger margins of defeat.
+
+        Parameters:
+        state (GameState): The game state to evaluate.
+
+        Returns:
+        float: The score value of the game state.
+        """
         result = state.calculate_score()
         current_player = self.game.current_player
 
@@ -64,12 +113,33 @@ class MonteCarloTree:
 
 
     def backpropagate(self, node, result):
+        """
+        Backpropagates the simulation result through the tree.
+        Increments 'visits' by 1 and 'wins' by the result for the node and its ancestors.
+
+        Parameters:
+        node (Node): The node from which the simulation was run.
+        result (float): The result of the simulation to backpropagate.
+
+        Returns:
+        None
+        """
         while node is not None:
             node.visits += 1
             node.wins += result
             node = node.parent
 
     def get_best_child(self, node):
+        """
+        Selects the best child node using the Upper Confidence Bound for Trees (UCT) formula.
+        This balances exploration and exploitation by favoring nodes with high average reward and low visit count.
+
+        Parameters:
+        node (Node): The parent node from which to select the best child.
+
+        Returns:
+        Node: The best child node according to the UCT formula.
+        """
         children = node.children
         best_child = max(children,
                         key=lambda c: c.wins / c.visits + 
