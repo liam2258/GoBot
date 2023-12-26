@@ -1,5 +1,5 @@
-from go_game import GoGame
-from mct import MonteCarloTree
+from game.go_game import GoGame
+from game.mct import MonteCarloTree
 
 def play_game():
     board_size = 6
